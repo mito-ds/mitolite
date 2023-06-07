@@ -27,3 +27,76 @@ For more info, keep an eye on the JupyterLite documentation:
 
 - How-to Guides: https://jupyterlite.readthedocs.io/en/latest/howto/index.html
 - Reference: https://jupyterlite.readthedocs.io/en/latest/reference/index.html
+
+## Developer Guide
+
+First, set up the enviornment:
+```
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+
+pip install -e path/to/monorepo/mitosheet
+pip install jupyter_packaging
+jupyter labextension develop path/to/monorepo/mitosheet --overwrite
+```
+
+Then, start `jswatch` in `monorepo/mitosheet` as normal.
+
+Then, build JupyterLite:
+```
+jupyter lite build
+```
+
+Finially, install the mito Python package for development. 
+
+Go to `monorepo/mitosheet` folder, create a wheel, and lint it into JupyterLite:
+```
+python3 setup.py bdist_wheel
+ln -s ~/absolute/path/to/monorepo/mitosheet/dist/mitosheet-0.3.131-py2.py3-none-any.whl ~/absolute/path/tomitolite/_output/extensions/@jupyterlite/pyodide-kernel-extension/static
+```
+
+Then, launch a server:
+```
+python test_server.py
+```
+
+Then, open Google Chrome, go to private browsing and paste in `localhost:8000`. 
+
+Create a new notebook and run:
+```
+import piplite
+await piplite.install('mitosheet-0.3.131-py2.py3-none-any.whl', deps=False)
+%pip install pandas plotly openpyxl distutils chardet requests analytics-python pyodide-http
+```
+
+Then, you can use mitosheet. **Everything should be working as normal, albeit a bit slower as nothing is threaded!**
+
+## Making changes to mitosheet and seeing the new version
+
+### Changing the Python code or to the Mito widget
+
+If you make changes to the Python code of mitosheet, and you want to use this new code, simply run:
+```
+python3 setup.py bdist_wheel
+rm ~/absolute/path/tomitolite/_output/extensions/@jupyterlite/pyodide-kernel-extension/static/mitosheet-0.3.131-py2.py3-none-any.whl
+ln -s ~/absolute/path/to/monorepo/mitosheet/dist/mitosheet-0.3.131-py2.py3-none-any.whl ~/absolute/path/tomitolite/_output/extensions/@jupyterlite/pyodide-kernel-extension/static
+```
+If you make changes to the JS code under the Mito widget (e.g. not touching the JLab integration), then the above commands will also work.
+
+### Changing the extension code
+
+If you update `extension.tsx` or other files touching the JLab integration, you need to rebuild the JupyterLite application by:
+1. Shutting down the test server.
+2. `jupyter lite build`
+3. `python test_server.py`
+
+# Some Notes
+1. Use Chrome Private Browsing. You can't access files in Firefox private browsing (see here: https://jupyterlite.readthedocs.io/en/latest/howto/configure/advanced/service-worker.html#limitations)
+
+## On Piodide limitations:
+See here: https://pyodide.org/en/stable/project/roadmap.html#write-http-client-in-terms-of-web-apis
+
+Python packages make an extensive use of packages such as requests to synchronously fetch data. We currently can’t use such packages since sockets are not available in Pyodide. We could however try to re-implement some stdlib libraries with Web APIs, potentially making this possible.
+
+Because http.client is a synchronous API, we first need support for synchronous IO.
