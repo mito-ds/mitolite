@@ -41,22 +41,23 @@ pip install jupyter_packaging
 jupyter labextension develop path/to/monorepo/mitosheet --overwrite
 ```
 
-Then, start `jswatch` in `monorepo/mitosheet` as normal.
-
 Then, build JupyterLite:
 ```
 jupyter lite build
 ```
 
-Finially, install the mito Python package for development. 
 
-Go to `monorepo/mitosheet` folder, create a wheel, and lint it into JupyterLite:
+Then, in `monorepo/mitosheet` start your virtual environment, and start `jswatch` as normal. You might start this by running `jlpm run watch`.
+
+Finally, install the mito Python package for development. 
+
+In `monorepo/mitosheet` folder, create a wheel, and lint it into JupyterLite:
 ```
 python3 setup.py bdist_wheel
-ln -s ~/absolute/path/to/monorepo/mitosheet/dist/mitosheet-0.3.131-py2.py3-none-any.whl ~/absolute/path/tomitolite/_output/extensions/@jupyterlite/pyodide-kernel-extension/static
+ln -s /absolute/path/to/monorepo/mitosheet/dist/mitosheet-0.3.131-py2.py3-none-any.whl /absolute/path/tomitolite/_output/extensions/@jupyterlite/pyodide-kernel-extension/static/mitosheet-0.3.131-py2.py3-none-any.whl
 ```
 
-Then, launch a server:
+Then, in the mitolite folder, launch a server:
 ```
 python test_server.py
 ```
@@ -79,8 +80,8 @@ Then, you can use mitosheet. **Everything should be working as normal, albeit a 
 If you make changes to the Python code of mitosheet, and you want to use this new code, simply run:
 ```
 python3 setup.py bdist_wheel
-rm ~/absolute/path/tomitolite/_output/extensions/@jupyterlite/pyodide-kernel-extension/static/mitosheet-0.3.131-py2.py3-none-any.whl
-ln -s ~/absolute/path/to/monorepo/mitosheet/dist/mitosheet-0.3.131-py2.py3-none-any.whl ~/absolute/path/tomitolite/_output/extensions/@jupyterlite/pyodide-kernel-extension/static
+rm /absolute/path/tomitolite/_output/extensions/@jupyterlite/pyodide-kernel-extension/static/mitosheet-0.3.131-py2.py3-none-any.whl
+ln -s /absolute/path/to/monorepo/mitosheet/dist/mitosheet-0.3.131-py2.py3-none-any.whl /absolute/path/tomitolite/_output/extensions/@jupyterlite/pyodide-kernel-extension/static/mitosheet-0.3.131-py2.py3-none-any.whl
 ```
 If you make changes to the JS code under the Mito widget (e.g. not touching the JLab integration), then the above commands will also work.
 
